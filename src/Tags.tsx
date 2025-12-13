@@ -1,6 +1,7 @@
-import { useMemo, useState } from "preact/compat";
+import { useMemo } from "preact/compat";
 import { useQuery } from "@tanstack/react-query";
 import { Select } from "@mantine/core";
+import { useLocalStorage } from "@mantine/hooks";
 
 console.log("import.meta.env.VITE_TOGGL_TOKEN", import.meta.env);
 
@@ -42,7 +43,10 @@ const createTimeEntry = async (obj: {
 };
 
 export const Tags = () => {
-  const [tagState, setTagState] = useState({});
+  const [tagState, setTagState] = useLocalStorage({
+    key: "tagsState",
+    defaultValue: "",
+  });
   const { data, isFetched } = useQuery({
     queryKey: ["todos"],
     queryFn: fetchTags,
@@ -88,18 +92,23 @@ export const Tags = () => {
 
   return (
     <div>
-      {Object.entries(grouped).map(([key, value]) => (
-        <Select
-          label={key}
-          placeholder="Pick value"
-          onChange={(e, option) =>
-            setTagState({ ...tagState, [key]: Number(e) })
-          }
-          data={value?.map((tag: any) => {
-            return { label: tag.name, value: String(tag.id) };
-          })}
-        />
-      ))}
+      {Object.entries(grouped).map(([key, value]) => {
+        console.log("value", tagState[key]);
+        return (
+          <Select
+            label={key}
+            placeholder="Pick value"
+            value={String(tagState[key])}
+            onChange={(e, option) => {
+              console.log("e", e);
+              setTagState({ ...tagState, [key]: Number(e) });
+            }}
+            data={value?.map((tag: any) => {
+              return { label: tag.name, value: String(tag.id) };
+            })}
+          />
+        );
+      })}
       <button onClick={handleStart}>start</button>
     </div>
   );

@@ -13,7 +13,10 @@ importers:
     dependencies:
       '@mantine/core':
         specifier: ^8.3.6
-        version: 8.3.6(@mantine/hooks@8.3.6(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 8.3.6(@mantine/hooks@8.3.10(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@mantine/hooks':
+        specifier: ^8.3.10
+        version: 8.3.10(react@19.2.0)
       '@tanstack/query-async-storage-persister':
         specifier: ^5.90.9
         version: 5.90.9
@@ -195,8 +198,8 @@ packages:
       react: ^18.x || ^19.x
       react-dom: ^18.x || ^19.x
 
-  '@mantine/hooks@8.3.6':
-    resolution: {integrity: sha512-liHfaWXHAkLjJy+Bkr29UsCwAoDQ/a64WrM67lksx8F0qqyjR5RQH8zVlhuOjdpQnwtlUkE/YiTvbJiPcoI0bw==}
+  '@mantine/hooks@8.3.10':
+    resolution: {integrity: sha512-bv+yYHl+keTIvakiDzVJMIjW+o8/Px0G3EdpCMFG+U2ux6SwQqluqoq+/kqrTtT6RaLvQ0fMxjpIULF2cu/xAg==}
     peerDependencies:
       react: ^18.x || ^19.x
 
@@ -982,10 +985,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mantine/core@8.3.6(@mantine/hooks@8.3.6(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@mantine/core@8.3.6(@mantine/hooks@8.3.10(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@floating-ui/react': 0.27.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@mantine/hooks': 8.3.6(react@19.2.0)
+      '@mantine/hooks': 8.3.10(react@19.2.0)
       clsx: 2.1.1
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
@@ -996,7 +999,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mantine/hooks@8.3.6(react@19.2.0)':
+  '@mantine/hooks@8.3.10(react@19.2.0)':
     dependencies:
       react: 19.2.0
 
