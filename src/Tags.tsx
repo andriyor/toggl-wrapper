@@ -1,7 +1,7 @@
-import { useMemo } from "preact/compat";
+import { useMemo, useState } from "preact/compat";
 import { useQuery } from "@tanstack/react-query";
 import { Select } from "@mantine/core";
-import { useLocalStorage } from "@mantine/hooks";
+import { useInterval, useLocalStorage } from "@mantine/hooks";
 
 console.log("import.meta.env.VITE_TOGGL_TOKEN", import.meta.env);
 
@@ -29,17 +29,38 @@ const createTimeEntry = async (obj: {
   workspaceId: string;
   tagIds: string[];
 }) => {
-  return fetch(`/toggl/api/v9/workspaces/${obj.workspaceId}/time_entries`, {
-    method: "POST",
-    body: JSON.stringify({
-      duration: -1,
-      wid: obj.workspaceId,
-      created_with: "wrapper",
-      start: new Date().toISOString(),
-      tag_ids: obj.tagIds,
-    }),
-    headers,
-  });
+  const res = await fetch(
+    `/toggl/api/v9/workspaces/${obj.workspaceId}/time_entries`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        duration: -1,
+        wid: obj.workspaceId,
+        created_with: "wrapper",
+        start: new Date().toISOString(),
+        tag_ids: obj.tagIds,
+      }),
+      headers,
+    },
+  );
+  return await res.json();
+};
+
+const stopTimeEntry = async ({
+  timeEntryId,
+  workspaceId,
+}: {
+  timeEntryId: number;
+  workspaceId: number;
+}) => {
+  const res = await fetch(
+    `/toggl/api/v9/workspaces/${workspaceId}/time_entries/${timeEntryId}/stop`,
+    {
+      method: "PATCH",
+      headers,
+    },
+  );
+  return await res.json();
 };
 
 export const Tags = () => {
@@ -51,6 +72,9 @@ export const Tags = () => {
     queryKey: ["todos"],
     queryFn: fetchTags,
   });
+  const [currentTimeEntry, setCurrentTimeEntry] = useState(null);
+  const [seconds, setSeconds] = useState(0);
+  const interval = useInterval(() => setSeconds((s) => s + 1), 1000);
 
   const { data: me } = useQuery({
     queryKey: ["me"],
@@ -84,9 +108,19 @@ export const Tags = () => {
   console.log("tagState", tagState);
 
   const handleStart = () => {
+    interval.start();
     createTimeEntry({
       workspaceId: me.default_workspace_id,
       tagIds: Object.values(tagState),
+    }).then((res) => setCurrentTimeEntry(res));
+  };
+
+  const handleStop = () => {
+    interval.stop();
+    setSeconds(0);
+    stopTimeEntry({
+      workspaceId: me.default_workspace_id,
+      timeEntryId: currentTimeEntry.id,
     });
   };
 
@@ -109,7 +143,12 @@ export const Tags = () => {
           />
         );
       })}
-      <button onClick={handleStart}>start</button>
+      {seconds}
+      {interval.active ? (
+        <button onClick={handleStop}>stop</button>
+      ) : (
+        <button onClick={handleStart}>start</button>
+      )}
     </div>
   );
 };
