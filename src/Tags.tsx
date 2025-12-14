@@ -126,6 +126,17 @@ export const Tags = () => {
 
   return (
     <div>
+      <div className="flex">
+        <div className="mr-2">{seconds}</div>
+        <div>
+          {interval.active ? (
+            <button onClick={handleStop}>stop</button>
+          ) : (
+            <button onClick={handleStart}>start</button>
+          )}
+        </div>
+      </div>
+
       {Object.entries(grouped).map(([key, value]) => {
         console.log("value", tagState[key]);
         return (
@@ -143,12 +154,6 @@ export const Tags = () => {
           />
         );
       })}
-      {seconds}
-      {interval.active ? (
-        <button onClick={handleStop}>stop</button>
-      ) : (
-        <button onClick={handleStart}>start</button>
-      )}
     </div>
   );
 };
