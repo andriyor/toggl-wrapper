@@ -3,14 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Select } from "@mantine/core";
 import { useInterval, useLocalStorage } from "@mantine/hooks";
 
+import { fetchMe } from "./api/me.ts";
+import { fetchProjects } from "./api/projects.ts";
 import {
   createTimeEntry,
-  fetchMe,
-  fetchProjects,
-  fetchTags,
   fetchTimeEntries,
   stopTimeEntry,
-} from "./api.ts";
+} from "./api/time-entries.ts";
+import { fetchTags } from "./api/tags.ts";
 
 export const Tags = () => {
   const [selectedProject, setselectedProject] = useState<number>();
@@ -27,7 +27,7 @@ export const Tags = () => {
     queryFn: fetchTimeEntries,
   });
   console.log("timeEntries", timeEntries);
-  const [currentTimeEntry, setCurrentTimeEntry] = useState(null);
+  const [currentTimeEntry, setCurrentTimeEntry] = useState();
   const [seconds, setSeconds] = useState(0);
   const interval = useInterval(() => setSeconds((s) => s + 1), 1000);
 
@@ -40,7 +40,7 @@ export const Tags = () => {
     queryFn: () => fetchProjects(me.default_workspace_id),
     enabled: Boolean(me?.default_workspace_id),
   });
-  const pinnedProjects = projects.filter((project: any) => project.pinned);
+  const pinnedProjects = projects?.filter((project: any) => project.pinned);
   console.log("projects", projects);
 
   console.log("me", me);
