@@ -1,0 +1,16 @@
+meta {
+  name: projects
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://api.track.toggl.com/api/v9/workspaces/1251626/project_users
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

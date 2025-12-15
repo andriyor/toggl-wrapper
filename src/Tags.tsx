@@ -2,6 +2,7 @@ import { useMemo, useState } from "preact/compat";
 import { useQuery } from "@tanstack/react-query";
 import { Select } from "@mantine/core";
 import { useInterval, useLocalStorage } from "@mantine/hooks";
+import { format, subDays } from "date-fns";
 
 console.log("import.meta.env.VITE_TOGGL_TOKEN", import.meta.env);
 
@@ -63,15 +64,35 @@ const stopTimeEntry = async ({
   return await res.json();
 };
 
+const fetchTimeEntries = async () => {
+  const currentDay = new Date();
+  const startDay = subDays(currentDay, 1);
+  const paramsObj = {
+    start_date: format(startDay, "yyyy-MM-dd"),
+    end_date: format(currentDay, "yyyy-MM-dd"),
+  };
+  const searchParams = new URLSearchParams(paramsObj);
+  const res = await fetch(`/toggl/api/v9/me/time_entries?${searchParams}`, {
+    headers,
+    method: "GET",
+  });
+  return await res.json();
+};
+
 export const Tags = () => {
   const [tagState, setTagState] = useLocalStorage({
     key: "tagsState",
     defaultValue: "",
   });
-  const { data, isFetched } = useQuery({
-    queryKey: ["todos"],
+  const { data: tags, isFetched } = useQuery({
+    queryKey: ["tags"],
     queryFn: fetchTags,
   });
+  const { data: timeEntries } = useQuery({
+    queryKey: ["timeEntries"],
+    queryFn: fetchTimeEntries,
+  });
+  console.log("timeEntries", timeEntries);
   const [currentTimeEntry, setCurrentTimeEntry] = useState(null);
   const [seconds, setSeconds] = useState(0);
   const interval = useInterval(() => setSeconds((s) => s + 1), 1000);
@@ -83,12 +104,12 @@ export const Tags = () => {
 
   console.log("me", me);
 
-  console.log("data", data);
+  console.log("data", tags);
   console.log("!isFetched", isFetched);
 
   const grouped = useMemo(() => {
     if (isFetched) {
-      const withColon = data.filter((tag: any) => tag.name.includes(":"));
+      const withColon = tags.filter((tag: any) => tag.name.includes(":"));
       console.log("filtered", withColon);
       const grouped = withColon.reduce((acc: any, tag: any) => {
         const key = tag.name.split(":")[0];
@@ -102,7 +123,7 @@ export const Tags = () => {
       return grouped;
     }
     return {};
-  }, [data, isFetched]);
+  }, [tags, isFetched]);
 
   console.log("grouped", grouped);
   console.log("tagState", tagState);
