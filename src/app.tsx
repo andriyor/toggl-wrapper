@@ -4,6 +4,7 @@ import { Tags } from "./Tags.tsx";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createTheme, MantineProvider } from "@mantine/core";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const asyncStoragePersister = createAsyncStoragePersister({
   storage: window.localStorage,
@@ -29,6 +30,7 @@ export function App() {
         persistOptions={{ persister: asyncStoragePersister }}
       >
         <Tags />
+        {/*<ReactQueryDevtools initialIsOpen={false} />*/}
       </PersistQueryClientProvider>
     </MantineProvider>
   );

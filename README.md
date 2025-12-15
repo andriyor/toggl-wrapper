@@ -5,6 +5,6 @@
 - [x] save tags state
 - [ ] show currently running timer
 - [x] stop timer
-- [ ] timer title
+- [x] timer title
 - [ ] show time entries list
-- [ ] project selector
+- [x] project selector

@@ -20,20 +20,22 @@ export const fetchMe = async () => {
   return await res.json();
 };
 
-export const createTimeEntry = async (obj: {
+export const createTimeEntry = async (timeEntry: {
   workspaceId: string;
+  projectId: number;
   tagIds: string[];
 }) => {
   const res = await fetch(
-    `/toggl/api/v9/workspaces/${obj.workspaceId}/time_entries`,
+    `/toggl/api/v9/workspaces/${timeEntry.workspaceId}/time_entries`,
     {
       method: "POST",
       body: JSON.stringify({
         duration: -1,
-        wid: obj.workspaceId,
+        wid: timeEntry.workspaceId,
         created_with: "wrapper",
         start: new Date().toISOString(),
-        tag_ids: obj.tagIds,
+        tag_ids: timeEntry.tagIds,
+        project_id: timeEntry.projectId,
       }),
       headers,
     },
@@ -67,6 +69,14 @@ export const fetchTimeEntries = async () => {
   };
   const searchParams = new URLSearchParams(paramsObj);
   const res = await fetch(`/toggl/api/v9/me/time_entries?${searchParams}`, {
+    headers,
+    method: "GET",
+  });
+  return await res.json();
+};
+
+export const fetchProjects = async (workspaceId: number) => {
+  const res = await fetch(`/toggl/api/v9/workspaces/${workspaceId}/projects`, {
     headers,
     method: "GET",
   });

@@ -6,12 +6,14 @@ import { useInterval, useLocalStorage } from "@mantine/hooks";
 import {
   createTimeEntry,
   fetchMe,
+  fetchProjects,
   fetchTags,
   fetchTimeEntries,
   stopTimeEntry,
 } from "./api.ts";
 
 export const Tags = () => {
+  const [selectedProject, setselectedProject] = useState<number>();
   const [tagState, setTagState] = useLocalStorage({
     key: "tagsState",
     defaultValue: "",
@@ -33,6 +35,13 @@ export const Tags = () => {
     queryKey: ["me"],
     queryFn: fetchMe,
   });
+  const { data: projects } = useQuery({
+    queryKey: ["myProjects"],
+    queryFn: () => fetchProjects(me.default_workspace_id),
+    enabled: Boolean(me?.default_workspace_id),
+  });
+  const pinnedProjects = projects.filter((project: any) => project.pinned);
+  console.log("projects", projects);
 
   console.log("me", me);
 
@@ -42,7 +51,6 @@ export const Tags = () => {
   const grouped = useMemo(() => {
     if (isFetched) {
       const withColon = tags.filter((tag: any) => tag.name.includes(":"));
-      console.log("filtered", withColon);
       const grouped = withColon.reduce((acc: any, tag: any) => {
         const key = tag.name.split(":")[0];
         if (acc[key]) {
@@ -63,6 +71,7 @@ export const Tags = () => {
   const handleStart = () => {
     interval.start();
     createTimeEntry({
+      projectId: selectedProject!,
       workspaceId: me.default_workspace_id,
       tagIds: Object.values(tagState),
     }).then((res) => setCurrentTimeEntry(res));
@@ -80,7 +89,20 @@ export const Tags = () => {
   return (
     <div>
       <div className="flex">
-        <div className="mr-2">{seconds}</div>
+        <div className="mr-4">
+          <Select
+            searchable
+            placeholder="Pick project"
+            value={String(selectedProject)}
+            onChange={(projectId) => {
+              setselectedProject(Number(projectId));
+            }}
+            data={pinnedProjects?.map((project: any) => {
+              return { label: project.name, value: String(project.id) };
+            })}
+          />
+        </div>
+        <div className="mr-4">{seconds}</div>
         <div>
           {interval.active ? (
             <button onClick={handleStop}>stop</button>
@@ -91,7 +113,6 @@ export const Tags = () => {
       </div>
 
       {Object.entries(grouped).map(([key, value]) => {
-        console.log("value", tagState[key]);
         return (
           <Select
             label={key}
