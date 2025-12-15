@@ -8,3 +8,8 @@
 - [x] timer title
 - [ ] show time entries list
 - [x] project selector
+
+## Tech Debt
+
+- [ ] better typings
+- [ ] separate components

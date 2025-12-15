@@ -2,6 +2,7 @@ import { useMemo, useState } from "preact/compat";
 import { useQuery } from "@tanstack/react-query";
 import { Select } from "@mantine/core";
 import { useInterval, useLocalStorage } from "@mantine/hooks";
+import { addSeconds, format, startOfDay } from "date-fns";
 
 import { fetchMe } from "./api/me.ts";
 import { fetchProjects } from "./api/projects.ts";
@@ -11,6 +12,11 @@ import {
   stopTimeEntry,
 } from "./api/time-entries.ts";
 import { fetchTags } from "./api/tags.ts";
+
+export const formatSeconds = (seconds: number) => {
+  const date = addSeconds(startOfDay(new Date()), seconds);
+  return format(date, "HH:mm:ss");
+};
 
 export const Tags = () => {
   const [selectedProject, setselectedProject] = useState<number>();
@@ -28,7 +34,7 @@ export const Tags = () => {
   });
   console.log("timeEntries", timeEntries);
   const [currentTimeEntry, setCurrentTimeEntry] = useState();
-  const [seconds, setSeconds] = useState(0);
+  const [seconds, setSeconds] = useState<number>(0);
   const interval = useInterval(() => setSeconds((s) => s + 1), 1000);
 
   const { data: me } = useQuery({
@@ -88,7 +94,7 @@ export const Tags = () => {
 
   return (
     <div>
-      <div className="flex">
+      <div className="flex mb-4">
         <div className="mr-4">
           <Select
             searchable
@@ -102,30 +108,35 @@ export const Tags = () => {
             })}
           />
         </div>
-        <div className="mr-4">{seconds}</div>
+        <div className="mr-4">{formatSeconds(seconds)}</div>
         <div>
           {interval.active ? (
             <button onClick={handleStop}>stop</button>
           ) : (
-            <button onClick={handleStart}>start</button>
+            <button disabled={!Boolean(selectedProject)} onClick={handleStart}>
+              start
+            </button>
           )}
         </div>
       </div>
 
       {Object.entries(grouped).map(([key, value]) => {
         return (
-          <Select
-            label={key}
-            placeholder="Pick value"
-            value={String(tagState[key])}
-            onChange={(e, option) => {
-              console.log("e", e);
-              setTagState({ ...tagState, [key]: Number(e) });
-            }}
-            data={value?.map((tag: any) => {
-              return { label: tag.name, value: String(tag.id) };
-            })}
-          />
+          <div className="mb-4">
+            <Select
+              // label={key}
+              placeholder={key}
+              value={String(tagState[key])}
+              onChange={(e, option) => {
+                console.log("e", e);
+                setTagState({ ...tagState, [key]: Number(e) });
+              }}
+              data={value?.map((tag: any) => {
+                return { label: tag.name, value: String(tag.id) };
+              })}
+              // styles={{ root: {} }}
+            />
+          </div>
         );
       })}
     </div>
