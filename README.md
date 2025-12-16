@@ -5,11 +5,11 @@
 ## TODO
 
 - [x] save tags state
-- [ ] show currently running timer
 - [x] stop timer
-- [x] timer title
-- [ ] show time entries list
 - [x] project selector
+- [x] timer title
+- [ ] show currently running timer
+- [ ] show time entries list
 
 ## Tech Debt
 

@@ -4,6 +4,7 @@ import { headers } from "./base";
 export const createTimeEntry = async (timeEntry: {
   workspaceId: string;
   projectId: number;
+  description?: string;
   tagIds: string[];
 }) => {
   const res = await fetch(
@@ -13,6 +14,7 @@ export const createTimeEntry = async (timeEntry: {
       body: JSON.stringify({
         duration: -1,
         wid: timeEntry.workspaceId,
+        description: timeEntry.description,
         created_with: "wrapper",
         start: new Date().toISOString(),
         tag_ids: timeEntry.tagIds,

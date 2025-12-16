@@ -1,6 +1,6 @@
 import { useMemo, useState } from "preact/compat";
 import { useQuery } from "@tanstack/react-query";
-import { ActionIcon, Select } from "@mantine/core";
+import { ActionIcon, Select, TextInput } from "@mantine/core";
 import { useInterval, useLocalStorage } from "@mantine/hooks";
 import { addSeconds, format, startOfDay } from "date-fns";
 import { IconPlayerPlay, IconPlayerPause } from "@tabler/icons-react";
@@ -20,7 +20,8 @@ export const formatSeconds = (seconds: number) => {
 };
 
 export const Tags = () => {
-  const [selectedProject, setselectedProject] = useState<number>();
+  const [description, setDescription] = useState("");
+  const [selectedProject, setSelectedProject] = useState<number>();
   const [tagState, setTagState] = useLocalStorage({
     key: "tagsState",
     defaultValue: "",
@@ -33,7 +34,6 @@ export const Tags = () => {
     queryKey: ["timeEntries"],
     queryFn: fetchTimeEntries,
   });
-  console.log("timeEntries", timeEntries);
   const [currentTimeEntry, setCurrentTimeEntry] = useState();
   const [seconds, setSeconds] = useState<number>(0);
   const interval = useInterval(() => setSeconds((s) => s + 1), 1000);
@@ -48,12 +48,6 @@ export const Tags = () => {
     enabled: Boolean(me?.default_workspace_id),
   });
   const pinnedProjects = projects?.filter((project: any) => project.pinned);
-  console.log("projects", projects);
-
-  console.log("me", me);
-
-  console.log("data", tags);
-  console.log("!isFetched", isFetched);
 
   const grouped = useMemo(() => {
     if (isFetched) {
@@ -72,12 +66,10 @@ export const Tags = () => {
     return {};
   }, [tags, isFetched]);
 
-  console.log("grouped", grouped);
-  console.log("tagState", tagState);
-
   const handleStart = () => {
     interval.start();
     createTimeEntry({
+      description: description,
       projectId: selectedProject!,
       workspaceId: me.default_workspace_id,
       tagIds: Object.values(tagState),
@@ -96,13 +88,20 @@ export const Tags = () => {
   return (
     <div>
       <div className="flex mb-4">
+        <div className="mr-2">
+          <TextInput
+            value={description}
+            onChange={(event) => setDescription(event.currentTarget.value)}
+            placeholder="What are you working on?"
+          />
+        </div>
         <div className="mr-4">
           <Select
             searchable
             placeholder="Pick project"
             value={String(selectedProject)}
             onChange={(projectId) => {
-              setselectedProject(Number(projectId));
+              setSelectedProject(Number(projectId));
             }}
             data={pinnedProjects?.map((project: any) => {
               return { label: project.name, value: String(project.id) };
