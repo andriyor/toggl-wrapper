@@ -1,8 +1,9 @@
 import { useMemo, useState } from "preact/compat";
 import { useQuery } from "@tanstack/react-query";
-import { Select } from "@mantine/core";
+import { ActionIcon, Select } from "@mantine/core";
 import { useInterval, useLocalStorage } from "@mantine/hooks";
 import { addSeconds, format, startOfDay } from "date-fns";
+import { IconPlayerPlay, IconPlayerPause } from "@tabler/icons-react";
 
 import { fetchMe } from "./api/me.ts";
 import { fetchProjects } from "./api/projects.ts";
@@ -42,7 +43,7 @@ export const Tags = () => {
     queryFn: fetchMe,
   });
   const { data: projects } = useQuery({
-    queryKey: ["myProjects"],
+    queryKey: ["projects"],
     queryFn: () => fetchProjects(me.default_workspace_id),
     enabled: Boolean(me?.default_workspace_id),
   });
@@ -111,11 +112,28 @@ export const Tags = () => {
         <div className="mr-4">{formatSeconds(seconds)}</div>
         <div>
           {interval.active ? (
-            <button onClick={handleStop}>stop</button>
+            <ActionIcon
+              onClick={handleStop}
+              variant="filled"
+              aria-label="Settings"
+            >
+              <IconPlayerPause
+                style={{ width: "70%", height: "70%" }}
+                stroke={1.5}
+              />
+            </ActionIcon>
           ) : (
-            <button disabled={!Boolean(selectedProject)} onClick={handleStart}>
-              start
-            </button>
+            <ActionIcon
+              onClick={handleStart}
+              variant="filled"
+              disabled={!Boolean(selectedProject)}
+              aria-label="Settings"
+            >
+              <IconPlayerPlay
+                style={{ width: "70%", height: "70%" }}
+                stroke={1.5}
+              />
+            </ActionIcon>
           )}
         </div>
       </div>
