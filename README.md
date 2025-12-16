@@ -1,5 +1,7 @@
 # toggl-wrapper
 
+[![NO AI](https://raw.githubusercontent.com/nuxy/no-ai-badge/master/badge.svg)](https://github.com/nuxy/no-ai-badge)
+
 ## TODO
 
 - [x] save tags state

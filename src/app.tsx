@@ -30,7 +30,7 @@ export function App() {
         persistOptions={{ persister: asyncStoragePersister }}
       >
         <Tags />
-        {/*<ReactQueryDevtools initialIsOpen={false} />*/}
+        <ReactQueryDevtools initialIsOpen={false} />
       </PersistQueryClientProvider>
     </MantineProvider>
   );
