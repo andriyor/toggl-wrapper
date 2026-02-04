@@ -1,0 +1,15 @@
+type: workspace
+model: workspace
+id: wk_FxoeLQMzDj
+createdAt: 2026-02-04T15:45:40.474340
+updatedAt: 2026-02-04T15:45:40.474340
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: toggl
+encryptionKeyChallenge: null
+settingValidateCertificates: true
+settingFollowRedirects: true
+settingRequestTimeout: 0
+settingDnsOverrides: []
