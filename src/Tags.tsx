@@ -1,7 +1,7 @@
-import { useMemo, useState } from "preact/compat";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "preact/compat";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ActionIcon, Select, TextInput } from "@mantine/core";
-import { useInterval, useLocalStorage } from "@mantine/hooks";
+import { useLocalStorage } from "@mantine/hooks";
 import { addSeconds, format, startOfDay } from "date-fns";
 import { IconPlayerPlay, IconPlayerPause } from "@tabler/icons-react";
 
@@ -9,6 +9,7 @@ import { fetchMe } from "./api/me.ts";
 import { fetchProjects } from "./api/projects.ts";
 import {
   createTimeEntry,
+  fetchCurrentTimeEntry,
   fetchTimeEntries,
   stopTimeEntry,
 } from "./api/time-entries.ts";
@@ -20,6 +21,7 @@ export const formatSeconds = (seconds: number) => {
 };
 
 export const Tags = () => {
+  const queryClient = useQueryClient();
   const [description, setDescription] = useState("");
   const [selectedProject, setSelectedProject] = useState<number>();
   const [tagState, setTagState] = useLocalStorage({
@@ -34,9 +36,30 @@ export const Tags = () => {
     queryKey: ["timeEntries"],
     queryFn: fetchTimeEntries,
   });
-  const [currentTimeEntry, setCurrentTimeEntry] = useState();
-  const [seconds, setSeconds] = useState<number>(0);
-  const interval = useInterval(() => setSeconds((s) => s + 1), 1000);
+  const { data: currentTimeEntry } = useQuery({
+    queryKey: ["currentTimeEntry"],
+    queryFn: fetchCurrentTimeEntry,
+    refetchInterval: 60 * 1000,
+    refetchIntervalInBackground: true,
+    staleTime: 0,
+  });
+  
+  const isRunning = Boolean(currentTimeEntry);
+  const [now, setNow] = useState(() => Date.now());
+  
+  useEffect(() => {
+    if (!isRunning) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [isRunning]);
+  
+  const seconds =
+    isRunning && currentTimeEntry?.start
+      ? Math.max(
+          0,
+          Math.floor((now - new Date(currentTimeEntry.start).getTime()) / 1000),
+        )
+      : 0;
 
   const { data: me } = useQuery({
     queryKey: ["me"],
@@ -67,21 +90,23 @@ export const Tags = () => {
   }, [tags, isFetched]);
 
   const handleStart = () => {
-    interval.start();
     createTimeEntry({
       description: description,
       projectId: selectedProject!,
       workspaceId: me.default_workspace_id,
       tagIds: Object.values(tagState),
-    }).then((res) => setCurrentTimeEntry(res));
+    }).then((res) => {
+      queryClient.setQueryData(["currentTimeEntry"], res);
+    });
   };
 
   const handleStop = () => {
-    interval.stop();
-    setSeconds(0);
+    if (!currentTimeEntry) return;
     stopTimeEntry({
       workspaceId: me.default_workspace_id,
       timeEntryId: currentTimeEntry.id,
+    }).then(() => {
+      queryClient.setQueryData(["currentTimeEntry"], null);
     });
   };
 
@@ -110,7 +135,7 @@ export const Tags = () => {
         </div>
         <div className="mr-4">{formatSeconds(seconds)}</div>
         <div>
-          {interval.active ? (
+          {isRunning ? (
             <ActionIcon
               onClick={handleStop}
               variant="filled"
@@ -136,6 +161,12 @@ export const Tags = () => {
           )}
         </div>
       </div>
+      
+      <div className='flex'>
+        <div>currently running project: </div>
+      <div>{projects?.find(project => project.id === currentTimeEntry.project_id).name}</div>
+      </div>
+      
 
       {Object.entries(grouped).map(([key, value]) => {
         return (

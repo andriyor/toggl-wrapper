@@ -26,6 +26,14 @@ export const createTimeEntry = async (timeEntry: {
   return await res.json();
 };
 
+export const fetchCurrentTimeEntry = async () => {
+  const res = await fetch("/toggl/api/v9/me/time_entries/current", {
+    headers,
+    method: "GET",
+  });
+  return await res.json();
+};
+
 export const fetchTimeEntries = async () => {
   const currentDay = new Date();
   const startDay = subDays(currentDay, 1);
