@@ -2,8 +2,11 @@ import { useEffect, useMemo, useState } from "preact/compat";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ActionIcon, Select, TextInput } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
-import { addSeconds, format, startOfDay } from "date-fns";
-import { IconPlayerPlay, IconPlayerPause } from "@tabler/icons-react";
+import {
+  IconMaximize,
+  IconPlayerPause,
+  IconPlayerPlay,
+} from "@tabler/icons-react";
 
 import { fetchMe } from "./api/me.ts";
 import { fetchProjects } from "./api/projects.ts";
@@ -14,11 +17,8 @@ import {
   stopTimeEntry,
 } from "./api/time-entries.ts";
 import { fetchTags } from "./api/tags.ts";
-
-export const formatSeconds = (seconds: number) => {
-  const date = addSeconds(startOfDay(new Date()), seconds);
-  return format(date, "HH:mm:ss");
-};
+import { formatSeconds } from "./utils/format.ts";
+import { FullscreenTimer } from "./components/FullscreenTimer.tsx";
 
 export const Tags = () => {
   const queryClient = useQueryClient();
@@ -71,6 +71,10 @@ export const Tags = () => {
     enabled: Boolean(me?.default_workspace_id),
   });
   const pinnedProjects = projects?.filter((project: any) => project.pinned);
+  const currentProject = projects?.find(
+    (project: any) => project.id === currentTimeEntry?.project_id,
+  );
+  const [fullscreen, setFullscreen] = useState(false);
 
   const grouped = useMemo(() => {
     if (isFetched) {
@@ -160,12 +164,38 @@ export const Tags = () => {
             </ActionIcon>
           )}
         </div>
+        <div className="ml-2">
+          <ActionIcon
+            onClick={() => setFullscreen(true)}
+            variant="default"
+            disabled={!isRunning}
+            aria-label="Fullscreen timer"
+          >
+            <IconMaximize
+              style={{ width: "70%", height: "70%" }}
+              stroke={1.5}
+            />
+          </ActionIcon>
+        </div>
       </div>
-      
-      <div className='flex'>
-        <div>currently running project: </div>
-      <div>{projects?.find(project => project.id === currentTimeEntry.project_id).name}</div>
-      </div>
+
+      {isRunning && (
+        <div className="flex mb-4">
+          <div className="mr-2">currently running project:</div>
+          <div>{currentProject?.name ?? "—"}</div>
+        </div>
+      )}
+
+      <FullscreenTimer
+        opened={fullscreen}
+        onClose={() => setFullscreen(false)}
+        projectName={currentProject?.name}
+        projectColor={currentProject?.color}
+        description={currentTimeEntry?.description}
+        seconds={seconds}
+        isRunning={isRunning}
+        onStop={handleStop}
+      />
       
 
       {Object.entries(grouped).map(([key, value]) => {
