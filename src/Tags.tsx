@@ -168,7 +168,7 @@ export const Tags = () => {
           <ActionIcon
             onClick={() => setFullscreen(true)}
             variant="default"
-            disabled={!isRunning}
+            disabled={!isRunning && !pinnedProjects?.length}
             aria-label="Fullscreen timer"
           >
             <IconMaximize
@@ -195,6 +195,10 @@ export const Tags = () => {
         seconds={seconds}
         isRunning={isRunning}
         onStop={handleStop}
+        onStart={handleStart}
+        pinnedProjects={pinnedProjects}
+        selectedProjectId={selectedProject}
+        onSelectProject={setSelectedProject}
       />
       
 
