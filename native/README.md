@@ -35,8 +35,24 @@ The app resolves the token in this order:
 
 ```sh
 # from the native/ folder, with the venv active
-python toggl_timer.py
+python toggl_timer.py        # or: python -m toggl
 
 # or pass the token explicitly
 TOGGL_API_TOKEN=your_token python toggl_timer.py
 ```
+
+## Layout
+
+`toggl_timer.py` is a thin launcher; the implementation lives in the `toggl`
+package, split by concern:
+
+| Module | Responsibility |
+| --- | --- |
+| `config.py` | resolve the API token |
+| `api.py` | blocking Toggl API v9 client |
+| `workers.py` | run blocking calls off the UI thread (`QThreadPool`) |
+| `utils.py` | pure helpers (colour, time formatting) |
+| `theme.py` | colour scheme derived from a project's colour |
+| `widgets.py` | the status / idle / running view pages |
+| `window.py` | controller wiring data, timers and views (a `QStackedWidget`) |
+| `app.py` | the `main()` entry point |
