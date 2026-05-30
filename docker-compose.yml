@@ -1,0 +1,9 @@
+services:
+  toggl-wrapper:
+    build: .
+    ports:
+      - "5173:5173"
+    environment:
+      # Passed through from your shell or the .env file in this directory.
+      VITE_TOGGL_TOKEN: ${VITE_TOGGL_TOKEN:?set VITE_TOGGL_TOKEN in your env or .env file}
+    restart: unless-stopped
