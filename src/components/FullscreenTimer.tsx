@@ -166,7 +166,7 @@ export const FullscreenTimer = ({
           </>
         ) : pinnedProjects.length > 0 ? (
           <>
-            <div className="flex flex-col items-center gap-3 max-h-[40vh] overflow-y-auto px-2">
+            <div className="flex flex-col items-center gap-3 max-h-[40vh] overflow-y-auto px-2 [scrollbar-width:none]">
               {pinnedProjects.map((project) => {
                 const active = project.id === selectedProjectId;
                 return (
