@@ -17,9 +17,7 @@ with HTTP Basic auth (`token:api_token`).
 
 ```sh
 cd native
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+uv sync
 ```
 
 ## Token
@@ -35,7 +33,7 @@ The app resolves the token in this order:
 
 ```sh
 # from the native/ folder, with the venv active
-python toggl_timer.py        # or: python -m toggl
+uv run toggl_timer.py        # or: python -m toggl
 
 # or pass the token explicitly
 TOGGL_API_TOKEN=your_token python toggl_timer.py
