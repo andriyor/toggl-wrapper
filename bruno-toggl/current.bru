@@ -1,0 +1,16 @@
+meta {
+  name: current
+  type: http
+  seq: 5
+}
+
+get {
+  url: https://api.track.toggl.com/api/v9/me/time_entries/current
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
