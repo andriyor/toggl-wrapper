@@ -50,5 +50,10 @@ connections for `node`/Docker in the firewall if it doesn't load.
 
 ## Tech Debt
 
-- [ ] better typings
-- [ ] separate components
+- [x] better typings
+- [x] separate components
+- [x] throw on failed API requests
+- [x] keep the API token out of the client bundle
+- [ ] show start / stop errors in the UI (currently only logged to the console)
+- [ ] production build: the app only runs on the Vite dev server, whose proxy
+      adds the token
