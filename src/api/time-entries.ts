@@ -1,4 +1,3 @@
-import { format, subDays } from "date-fns";
 import { request } from "./base.ts";
 import type { TimeEntry } from "./types.ts";
 
@@ -24,16 +23,6 @@ export const createTimeEntry = (timeEntry: {
 // Running entry, or null when nothing is running.
 export const fetchCurrentTimeEntry = () =>
   request<TimeEntry | null>("/me/time_entries/current");
-
-export const fetchTimeEntries = () => {
-  const currentDay = new Date();
-  const startDay = subDays(currentDay, 1);
-  const searchParams = new URLSearchParams({
-    start_date: format(startDay, "yyyy-MM-dd"),
-    end_date: format(currentDay, "yyyy-MM-dd"),
-  });
-  return request<TimeEntry[]>(`/me/time_entries?${searchParams}`);
-};
 
 export const stopTimeEntry = ({
   timeEntryId,
