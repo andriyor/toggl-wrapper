@@ -59,6 +59,28 @@ export const FullscreenTimer = ({
   const onDark = isDarkColor(displayColor);
   const textColor = "#111";
   const subTextColor = onDark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.6)";
+  // Shared by close / start / stop so they read as one set on any project colour.
+  const buttonStyle = {
+    color: onDark ? "#fff" : "#111",
+    backgroundColor: onDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)",
+  };
+
+  // Tint the browser chrome (tab strip / mobile address bar) and the page
+  // background, which shows behind the phone's bottom gesture bar.
+  useEffect(() => {
+    if (!opened || !displayColor) return;
+    const meta = document.querySelector<HTMLMetaElement>(
+      'meta[name="theme-color"]',
+    );
+    const html = document.documentElement;
+    const previous = { meta: meta?.content, bg: html.style.backgroundColor };
+    if (meta) meta.content = displayColor;
+    html.style.backgroundColor = displayColor;
+    return () => {
+      if (meta && previous.meta) meta.content = previous.meta;
+      html.style.backgroundColor = previous.bg;
+    };
+  }, [opened, displayColor]);
 
   // Keep the highlighted project visible when arrowing through a long,
   // scrollable list.
@@ -130,13 +152,18 @@ export const FullscreenTimer = ({
       styles={{
         content: { backgroundColor: displayColor ?? undefined },
         // Header defaults to the theme body colour; let the project colour show.
-        header: { backgroundColor: "transparent" },
-        close: {
-          color: onDark ? "#fff" : "#111",
-          backgroundColor: onDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)",
+        // Safe-area insets keep content clear of the notch / home indicator
+        // now that viewport-fit=cover lets the page draw underneath them.
+        header: {
+          backgroundColor: "transparent",
+          paddingTop: "max(var(--mb-padding), env(safe-area-inset-top))",
         },
+        close: buttonStyle,
         // Fill what's left under the 60px header so the page doesn't scroll.
-        body: { height: "calc(100dvh - 60px)" },
+        body: {
+          height: "calc(100dvh - 60px)",
+          paddingBottom: "env(safe-area-inset-bottom)",
+        },
       }}
     >
       <div
@@ -170,6 +197,7 @@ export const FullscreenTimer = ({
             <ActionIcon
               onClick={onStop}
               variant="filled"
+              style={buttonStyle}
               size="xl"
               aria-label="Stop"
             >
@@ -209,6 +237,7 @@ export const FullscreenTimer = ({
             <ActionIcon
               onClick={onStart}
               variant="filled"
+              style={buttonStyle}
               size="xl"
               disabled={!selectedPinned}
               aria-label="Start"
