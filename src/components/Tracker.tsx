@@ -22,8 +22,8 @@ export const Tracker = () => {
 
   return (
     <div>
-      <div className="flex mb-4">
-        <div className="mr-2">
+      <div className="flex flex-wrap items-center gap-y-2 mb-4">
+        <div className="w-full sm:w-auto sm:mr-2">
           <TextInput
             value={timer.description}
             onChange={(event) =>
@@ -32,7 +32,7 @@ export const Tracker = () => {
             placeholder="What are you working on?"
           />
         </div>
-        <div className="mr-4">
+        <div className="w-full sm:w-auto sm:mr-4">
           <Select
             searchable
             placeholder="Pick project"

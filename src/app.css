@@ -3,6 +3,11 @@
 /*@import "tailwindcss/preflight.css" layer(base);*/
 @import "tailwindcss/utilities.css" layer(utilities);
 
+/* Mantine and Tailwind size in rem, so this scales the whole UI. */
+html {
+  font-size: 112.5%;
+}
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
