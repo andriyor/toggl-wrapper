@@ -82,7 +82,12 @@ export const Tags = () => {
   const currentProject = projects?.find(
     (project) => project.id === currentTimeEntry?.project_id,
   );
-  const [fullscreen, setFullscreen] = useState(false);
+  const [fullscreen, setFullscreen] = useLocalStorage({
+    key: "fullscreen",
+    defaultValue: false,
+    // Read synchronously so a reload opens straight into fullscreen.
+    getInitialValueInEffect: false,
+  });
 
   // Tags named "group:value" grouped by their group prefix.
   const grouped = useMemo(() => {
