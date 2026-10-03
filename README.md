@@ -23,6 +23,15 @@ docker run --rm -p 5173:5173 -e VITE_TOGGL_TOKEN=your_token toggl-wrapper
 
 Then open http://localhost:5173.
 
+### Access from other devices
+
+The dev server listens on `0.0.0.0`, so devices on the same network can open
+`http://<your-ip>:5173` (macOS: `ipconfig getifaddr en0`). Allow incoming
+connections for `node`/Docker in the firewall if it doesn't load.
+
+> The token is bundled into the client, so anyone who can open the app can read
+> it. Only share on a trusted network.
+
 ## Features
 
 - start / stop timer
@@ -31,6 +40,9 @@ Then open http://localhost:5173.
 - selector for grouped tags (`group:tag`), state saved locally
 - show currently running timer, synced every minute
 - full-screen timer mode
+  - background in the project colour
+  - ↑ / ↓ to pick a project, Enter to start / stop
+  - works on phones (touch start / stop buttons)
 
 ## TODO
 
