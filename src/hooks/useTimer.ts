@@ -4,6 +4,7 @@ import { useLocalStorage } from "@mantine/hooks";
 
 import { fetchMe } from "../api/me.ts";
 import { fetchProjects } from "../api/projects.ts";
+import { fetchTags } from "../api/tags.ts";
 import {
   createTimeEntry,
   fetchCurrentTimeEntry,
@@ -28,6 +29,11 @@ export const useTimer = () => {
     staleTime: 0,
   });
 
+  const { data: tags } = useQuery({
+    queryKey: ["tags"],
+    queryFn: fetchTags,
+  });
+
   const isRunning = Boolean(currentTimeEntry);
 
   // Reflect a running entry (possibly started elsewhere) in the inputs.
@@ -36,6 +42,17 @@ export const useTimer = () => {
     setSelectedProject(currentTimeEntry.project_id ?? undefined);
     setDescription(currentTimeEntry.description ?? "");
   }, [currentTimeEntry?.id]);
+
+  // Tags are "group:value"; map the entry's tag_ids back to group -> id.
+  useEffect(() => {
+    if (!currentTimeEntry || !tags) return;
+    const next: Record<string, number> = {};
+    for (const id of currentTimeEntry.tag_ids ?? []) {
+      const tag = tags.find((t) => t.id === id);
+      if (tag?.name.includes(":")) next[tag.name.split(":")[0]] = tag.id;
+    }
+    setTagState(next);
+  }, [currentTimeEntry?.id, tags]);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
