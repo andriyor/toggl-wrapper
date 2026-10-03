@@ -11,6 +11,7 @@ type Props = {
   projectName?: string;
   projectColor?: string;
   description?: string;
+  tagNames: string[];
   seconds: number;
   isRunning: boolean;
   onStop: () => void;
@@ -36,6 +37,7 @@ export const FullscreenTimer = ({
   projectName,
   projectColor,
   description,
+  tagNames,
   seconds,
   isRunning,
   onStop,
@@ -207,6 +209,16 @@ export const FullscreenTimer = ({
                 stroke={1.5}
               />
             </ActionIcon>
+            {tagNames.length > 0 && (
+              <div
+                className="text-lg sm:text-2xl break-words max-w-full"
+                style={{ color: subTextColor }}
+              >
+                {tagNames.map((name) => (
+                  <div key={name}>{name}</div>
+                ))}
+              </div>
+            )}
           </>
         ) : pinnedProjects.length > 0 ? (
           <>

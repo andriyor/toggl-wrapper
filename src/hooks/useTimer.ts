@@ -86,6 +86,9 @@ export const useTimer = () => {
   const currentProject = projects?.find(
     (project) => project.id === currentTimeEntry?.project_id,
   );
+  const currentTagNames = (tags ?? [])
+    .filter((tag) => currentTimeEntry?.tag_ids?.includes(tag.id))
+    .map((tag) => tag.name);
 
   const start = () => {
     if (!me || !selectedProject) return;
@@ -119,6 +122,7 @@ export const useTimer = () => {
     setTagState,
     currentTimeEntry,
     currentProject,
+    currentTagNames,
     pinnedProjects,
     isRunning,
     seconds,

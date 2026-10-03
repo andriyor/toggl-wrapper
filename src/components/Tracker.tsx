@@ -97,6 +97,7 @@ export const Tracker = () => {
         projectName={timer.currentProject?.name}
         projectColor={timer.currentProject?.color}
         description={timer.currentTimeEntry?.description ?? undefined}
+        tagNames={timer.currentTagNames}
         seconds={timer.seconds}
         isRunning={timer.isRunning}
         onStop={timer.stop}
