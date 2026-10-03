@@ -94,17 +94,7 @@ export const Tracker = () => {
       <FullscreenTimer
         opened={fullscreen}
         onClose={() => setFullscreen(false)}
-        projectName={timer.currentProject?.name}
-        projectColor={timer.currentProject?.color}
-        description={timer.currentTimeEntry?.description ?? undefined}
-        tagNames={timer.currentTagNames}
-        seconds={timer.seconds}
-        isRunning={timer.isRunning}
-        onStop={timer.stop}
-        onStart={timer.start}
-        pinnedProjects={timer.pinnedProjects}
-        selectedProjectId={timer.selectedProject}
-        onSelectProject={timer.setSelectedProject}
+        timer={timer}
       />
 
       <TagGroups value={timer.tagState} onChange={timer.setTagState} />

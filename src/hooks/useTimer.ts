@@ -130,3 +130,5 @@ export const useTimer = () => {
     stop,
   };
 };
+
+export type Timer = ReturnType<typeof useTimer>;
