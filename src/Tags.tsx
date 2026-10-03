@@ -45,6 +45,13 @@ export const Tags = () => {
   });
   
   const isRunning = Boolean(currentTimeEntry);
+
+  // Reflect a running entry (possibly started elsewhere) in the inputs.
+  useEffect(() => {
+    if (!currentTimeEntry) return;
+    setSelectedProject(currentTimeEntry.project_id ?? undefined);
+    setDescription(currentTimeEntry.description ?? "");
+  }, [currentTimeEntry?.id]);
   const [now, setNow] = useState(() => Date.now());
   
   useEffect(() => {
@@ -70,7 +77,11 @@ export const Tags = () => {
     queryFn: () => fetchProjects(me.default_workspace_id),
     enabled: Boolean(me?.default_workspace_id),
   });
-  const pinnedProjects = projects?.filter((project: any) => project.pinned);
+  // Keep the selected project listed even when it isn't pinned (e.g. a timer
+  // started elsewhere), otherwise the Select renders blank.
+  const pinnedProjects = projects?.filter(
+    (project: any) => project.pinned || project.id === selectedProject,
+  );
   const currentProject = projects?.find(
     (project: any) => project.id === currentTimeEntry?.project_id,
   );

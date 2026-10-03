@@ -25,17 +25,16 @@ Then open http://localhost:5173.
 
 ## Features
 
-- [ ] selector for grouped tags
-- [ ] icons for projects
+- start / stop timer
+- timer description
+- project selector (pinned projects)
+- selector for grouped tags (`group:tag`), state saved locally
+- show currently running timer, synced every minute
+- full-screen timer mode
 
 ## TODO
 
-- [x] save tags state
-- [x] stop timer
-- [x] project selector
-- [x] timer title
 - [ ] icons for projects
-- [ ] show currently running timer
 - [ ] show time entries list
 - [ ] edit tags in entries
 
