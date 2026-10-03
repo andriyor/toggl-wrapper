@@ -1,6 +1,6 @@
 import "./app.css";
 import { QueryClient } from "@tanstack/react-query";
-import { Tags } from "./Tags.tsx";
+import { Tracker } from "./components/Tracker.tsx";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createTheme, MantineProvider } from "@mantine/core";
@@ -29,7 +29,7 @@ export function App() {
         client={queryClient}
         persistOptions={{ persister: asyncStoragePersister }}
       >
-        <Tags />
+        <Tracker />
         <ReactQueryDevtools initialIsOpen={false} />
       </PersistQueryClientProvider>
     </MantineProvider>
