@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "preact/compat";
 import { ActionIcon, Modal } from "@mantine/core";
-import { IconPlayerPause } from "@tabler/icons-react";
+import { IconPlayerPause, IconPlayerPlay } from "@tabler/icons-react";
 
 import { formatSeconds } from "../utils/format.ts";
 
@@ -125,21 +125,35 @@ export const FullscreenTimer = ({
       onClose={onClose}
       fullScreen
       withCloseButton
+      closeButtonProps={{ size: "xl", iconSize: 32, "aria-label": "Close" }}
       padding={0}
       styles={{
         content: { backgroundColor: displayColor ?? undefined },
-        body: { height: "100vh" },
+        // Header defaults to the theme body colour; let the project colour show.
+        header: { backgroundColor: "transparent" },
+        close: {
+          color: onDark ? "#fff" : "#111",
+          backgroundColor: onDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)",
+        },
+        // Fill what's left under the 60px header so the page doesn't scroll.
+        body: { height: "calc(100dvh - 60px)" },
       }}
     >
       <div
-        className="flex flex-col items-center justify-center h-screen gap-8"
+        className="flex flex-col items-center justify-center h-full gap-6 sm:gap-8 px-4 text-center"
         style={{ color: textColor }}
       >
-        <div className="text-4xl" style={{ color: subTextColor }}>
+        <div
+          className="text-2xl sm:text-4xl break-words max-w-full"
+          style={{ color: subTextColor }}
+        >
           {displayName}
         </div>
         {isRunning && description && (
-          <div className="text-2xl" style={{ color: subTextColor }}>
+          <div
+            className="text-lg sm:text-2xl break-words max-w-full"
+            style={{ color: subTextColor }}
+          >
             {description}
           </div>
         )}
@@ -148,7 +162,8 @@ export const FullscreenTimer = ({
           <>
             <div
               className="font-mono tabular-nums leading-none"
-              style={{ fontSize: "12rem" }}
+              // 8 monospace chars ≈ 4.8em, so 18vw keeps it within the viewport.
+              style={{ fontSize: "clamp(3rem, 18vw, 12rem)" }}
             >
               {formatSeconds(seconds)}
             </div>
@@ -166,7 +181,7 @@ export const FullscreenTimer = ({
           </>
         ) : pinnedProjects.length > 0 ? (
           <>
-            <div className="flex flex-col items-center gap-3 max-h-[40vh] overflow-y-auto px-2 [scrollbar-width:none]">
+            <div className="flex flex-col items-center gap-3 max-h-[40dvh] max-w-full overflow-y-auto px-2 [scrollbar-width:none]">
               {pinnedProjects.map((project) => {
                 const active = project.id === selectedProjectId;
                 return (
@@ -175,7 +190,7 @@ export const FullscreenTimer = ({
                     ref={active ? activeButtonRef : undefined}
                     type="button"
                     onClick={() => onSelectProject(project.id)}
-                    className="text-3xl px-6 py-2 rounded transition-opacity"
+                    className="text-xl sm:text-3xl px-4 sm:px-6 py-2 rounded transition-opacity max-w-full break-words"
                     style={{
                       color: textColor,
                       opacity: active ? 1 : 0.5,
@@ -190,7 +205,23 @@ export const FullscreenTimer = ({
                 );
               })}
             </div>
-            <div className="text-lg" style={{ color: subTextColor }}>
+            {/* Touch devices have no Enter key, so offer a start button too. */}
+            <ActionIcon
+              onClick={onStart}
+              variant="filled"
+              size="xl"
+              disabled={!selectedPinned}
+              aria-label="Start"
+            >
+              <IconPlayerPlay
+                style={{ width: "70%", height: "70%" }}
+                stroke={1.5}
+              />
+            </ActionIcon>
+            <div
+              className="hidden sm:block text-lg"
+              style={{ color: subTextColor }}
+            >
               ↑ / ↓ to pick · Enter to start
             </div>
           </>
