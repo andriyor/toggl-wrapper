@@ -1,7 +1,5 @@
 # toggl-wrapper
 
-[![NO AI](https://raw.githubusercontent.com/nuxy/no-ai-badge/master/badge.svg)](https://github.com/nuxy/no-ai-badge)
-
 ## Docker
 
 The container runs the Vite dev server, which reads your Toggl API token from
