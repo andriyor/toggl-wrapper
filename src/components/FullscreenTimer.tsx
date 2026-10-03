@@ -3,6 +3,7 @@ import { ActionIcon, Modal } from "@mantine/core";
 import { IconPlayerPause, IconPlayerPlay } from "@tabler/icons-react";
 
 import { formatSeconds } from "../utils/format.ts";
+import type { Project } from "../api/types.ts";
 
 type Props = {
   opened: boolean;
@@ -14,7 +15,7 @@ type Props = {
   isRunning: boolean;
   onStop: () => void;
   onStart: () => void;
-  pinnedProjects?: any[];
+  pinnedProjects?: Project[];
   selectedProjectId?: number;
   onSelectProject: (id: number) => void;
 };

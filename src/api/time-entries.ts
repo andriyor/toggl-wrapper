@@ -1,12 +1,13 @@
 import { format, subDays } from "date-fns";
 import { headers } from "./base";
+import type { TimeEntry } from "./types.ts";
 
 export const createTimeEntry = async (timeEntry: {
-  workspaceId: string;
+  workspaceId: number;
   projectId: number;
   description?: string;
-  tagIds: string[];
-}) => {
+  tagIds: number[];
+}): Promise<TimeEntry> => {
   const res = await fetch(
     `/toggl/api/v9/workspaces/${timeEntry.workspaceId}/time_entries`,
     {
@@ -26,7 +27,8 @@ export const createTimeEntry = async (timeEntry: {
   return await res.json();
 };
 
-export const fetchCurrentTimeEntry = async () => {
+// Running entry, or null when nothing is running.
+export const fetchCurrentTimeEntry = async (): Promise<TimeEntry | null> => {
   const res = await fetch("/toggl/api/v9/me/time_entries/current", {
     headers,
     method: "GET",
@@ -34,7 +36,7 @@ export const fetchCurrentTimeEntry = async () => {
   return await res.json();
 };
 
-export const fetchTimeEntries = async () => {
+export const fetchTimeEntries = async (): Promise<TimeEntry[]> => {
   const currentDay = new Date();
   const startDay = subDays(currentDay, 1);
   const paramsObj = {
@@ -55,7 +57,7 @@ export const stopTimeEntry = async ({
 }: {
   timeEntryId: number;
   workspaceId: number;
-}) => {
+}): Promise<TimeEntry> => {
   const res = await fetch(
     `/toggl/api/v9/workspaces/${workspaceId}/time_entries/${timeEntryId}/stop`,
     {

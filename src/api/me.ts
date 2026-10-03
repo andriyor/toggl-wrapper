@@ -1,6 +1,7 @@
 import { headers } from "./base.ts";
+import type { Me } from "./types.ts";
 
-export const fetchMe = async () => {
+export const fetchMe = async (): Promise<Me> => {
   const res = await fetch("/toggl/api/v9/me", {
     headers,
   });

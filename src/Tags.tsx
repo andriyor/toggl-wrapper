@@ -13,10 +13,10 @@ import { fetchProjects } from "./api/projects.ts";
 import {
   createTimeEntry,
   fetchCurrentTimeEntry,
-  fetchTimeEntries,
   stopTimeEntry,
 } from "./api/time-entries.ts";
 import { fetchTags } from "./api/tags.ts";
+import type { Tag } from "./api/types.ts";
 import { formatSeconds } from "./utils/format.ts";
 import { FullscreenTimer } from "./components/FullscreenTimer.tsx";
 
@@ -24,17 +24,14 @@ export const Tags = () => {
   const queryClient = useQueryClient();
   const [description, setDescription] = useState("");
   const [selectedProject, setSelectedProject] = useState<number>();
-  const [tagState, setTagState] = useLocalStorage({
+  // Tag group name -> selected tag id.
+  const [tagState, setTagState] = useLocalStorage<Record<string, number>>({
     key: "tagsState",
-    defaultValue: "",
+    defaultValue: {},
   });
-  const { data: tags, isFetched } = useQuery({
+  const { data: tags } = useQuery({
     queryKey: ["tags"],
     queryFn: fetchTags,
-  });
-  const { data: timeEntries } = useQuery({
-    queryKey: ["timeEntries"],
-    queryFn: fetchTimeEntries,
   });
   const { data: currentTimeEntry } = useQuery({
     queryKey: ["currentTimeEntry"],
@@ -74,40 +71,35 @@ export const Tags = () => {
   });
   const { data: projects } = useQuery({
     queryKey: ["projects"],
-    queryFn: () => fetchProjects(me.default_workspace_id),
+    queryFn: () => fetchProjects(me!.default_workspace_id),
     enabled: Boolean(me?.default_workspace_id),
   });
   // Keep the selected project listed even when it isn't pinned (e.g. a timer
   // started elsewhere), otherwise the Select renders blank.
   const pinnedProjects = projects?.filter(
-    (project: any) => project.pinned || project.id === selectedProject,
+    (project) => project.pinned || project.id === selectedProject,
   );
   const currentProject = projects?.find(
-    (project: any) => project.id === currentTimeEntry?.project_id,
+    (project) => project.id === currentTimeEntry?.project_id,
   );
   const [fullscreen, setFullscreen] = useState(false);
 
+  // Tags named "group:value" grouped by their group prefix.
   const grouped = useMemo(() => {
-    if (isFetched) {
-      const withColon = tags.filter((tag: any) => tag.name.includes(":"));
-      const grouped = withColon.reduce((acc: any, tag: any) => {
-        const key = tag.name.split(":")[0];
-        if (acc[key]) {
-          acc[key] = [tag, ...acc[key]];
-        } else {
-          acc[key] = [tag];
-        }
-        return acc;
-      }, {});
-      return grouped;
+    const acc: Record<string, Tag[]> = {};
+    for (const tag of tags ?? []) {
+      if (!tag.name.includes(":")) continue;
+      const key = tag.name.split(":")[0];
+      acc[key] = [tag, ...(acc[key] ?? [])];
     }
-    return {};
-  }, [tags, isFetched]);
+    return acc;
+  }, [tags]);
 
   const handleStart = () => {
+    if (!me || !selectedProject) return;
     createTimeEntry({
       description: description,
-      projectId: selectedProject!,
+      projectId: selectedProject,
       workspaceId: me.default_workspace_id,
       tagIds: Object.values(tagState),
     }).then((res) => {
@@ -118,7 +110,8 @@ export const Tags = () => {
   const handleStop = () => {
     if (!currentTimeEntry) return;
     stopTimeEntry({
-      workspaceId: me.default_workspace_id,
+      // The entry's own workspace — it may have been started elsewhere.
+      workspaceId: currentTimeEntry.workspace_id,
       timeEntryId: currentTimeEntry.id,
     }).then(() => {
       queryClient.setQueryData(["currentTimeEntry"], null);
@@ -143,7 +136,7 @@ export const Tags = () => {
             onChange={(projectId) => {
               setSelectedProject(Number(projectId));
             }}
-            data={pinnedProjects?.map((project: any) => {
+            data={pinnedProjects?.map((project) => {
               return { label: project.name, value: String(project.id) };
             })}
           />
@@ -202,7 +195,7 @@ export const Tags = () => {
         onClose={() => setFullscreen(false)}
         projectName={currentProject?.name}
         projectColor={currentProject?.color}
-        description={currentTimeEntry?.description}
+        description={currentTimeEntry?.description ?? undefined}
         seconds={seconds}
         isRunning={isRunning}
         onStop={handleStop}
@@ -220,11 +213,10 @@ export const Tags = () => {
               // label={key}
               placeholder={key}
               value={String(tagState[key])}
-              onChange={(e, option) => {
-                console.log("e", e);
+              onChange={(e) => {
                 setTagState({ ...tagState, [key]: Number(e) });
               }}
-              data={value?.map((tag: any) => {
+              data={value.map((tag) => {
                 return { label: tag.name, value: String(tag.id) };
               })}
               // styles={{ root: {} }}
