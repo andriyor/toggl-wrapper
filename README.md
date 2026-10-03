@@ -5,20 +5,20 @@
 ## Docker
 
 The container runs the Vite dev server, which reads your Toggl API token from
-`VITE_TOGGL_TOKEN` at startup and proxies `/toggl` to the Toggl API (avoiding
+`TOGGL_TOKEN` at startup and proxies `/toggl` to the Toggl API (avoiding
 CORS). The app is served on port `5173`.
 
-With docker compose (reads `VITE_TOGGL_TOKEN` from your shell or a `.env` file):
+With docker compose (reads `TOGGL_TOKEN` from your shell or a `.env` file):
 
 ```sh
-VITE_TOGGL_TOKEN=your_token docker compose up --build
+TOGGL_TOKEN=your_token docker compose up --build
 ```
 
 Or with plain Docker:
 
 ```sh
 docker build -t toggl-wrapper .
-docker run --rm -p 5173:5173 -e VITE_TOGGL_TOKEN=your_token toggl-wrapper
+docker run --rm -p 5173:5173 -e TOGGL_TOKEN=your_token toggl-wrapper
 ```
 
 Then open http://localhost:5173.
@@ -29,8 +29,8 @@ The dev server listens on `0.0.0.0`, so devices on the same network can open
 `http://<your-ip>:5173` (macOS: `ipconfig getifaddr en0`). Allow incoming
 connections for `node`/Docker in the firewall if it doesn't load.
 
-> The token is bundled into the client, so anyone who can open the app can read
-> it. Only share on a trusted network.
+> The token stays on the server (the proxy adds it), but anyone who can open the
+> app can act on your Toggl account through it. Only share on a trusted network.
 
 ## Features
 

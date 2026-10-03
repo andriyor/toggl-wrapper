@@ -13,7 +13,7 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-# Vite dev server. It reads VITE_TOGGL_TOKEN from the environment at startup,
+# Vite dev server. It reads TOGGL_TOKEN from the environment at startup,
 # and its built-in proxy forwards /toggl -> https://api.track.toggl.com.
 EXPOSE 5173
 CMD ["pnpm", "dev", "--host", "0.0.0.0", "--port", "5173"]

@@ -1,8 +1,5 @@
-const headers = {
-  Authorization:
-    "Basic " + btoa(`${import.meta.env.VITE_TOGGL_TOKEN}:api_token`),
-  "Content-Type": "application/json",
-};
+// Auth is added by the dev-server proxy (vite.config.ts).
+const headers = { "Content-Type": "application/json" };
 
 // Throws on non-2xx so React Query sees a real error instead of an error body
 // typed as T.
