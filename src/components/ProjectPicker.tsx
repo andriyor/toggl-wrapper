@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "preact/compat";
+import { useEffect, useRef } from "react";
 import { ActionIcon } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
 

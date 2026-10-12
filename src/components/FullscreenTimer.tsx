@@ -1,4 +1,4 @@
-import { useEffect } from "preact/compat";
+import { useEffect } from "react";
 import { Modal } from "@mantine/core";
 
 import type { Timer } from "../hooks/useTimer.ts";

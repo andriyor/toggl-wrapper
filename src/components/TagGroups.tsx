@@ -1,4 +1,4 @@
-import { useMemo } from "preact/compat";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Select } from "@mantine/core";
 

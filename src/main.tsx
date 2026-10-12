@@ -1,4 +1,4 @@
-import { render } from "preact";
+import { createRoot } from "react-dom/client";
 import "./index.css";
 import { App } from "./app.tsx";
 
@@ -24,4 +24,4 @@ import "@mantine/core/styles/ActionIcon.css";
 
 import "@mantine/core/styles/Combobox.css";
 
-render(<App />, document.getElementById("app")!);
+createRoot(document.getElementById("app")!).render(<App />);
