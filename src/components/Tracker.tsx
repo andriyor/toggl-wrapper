@@ -42,6 +42,7 @@ export const Tracker = () => {
             value={String(timer.selectedProject)}
             onChange={(projectId) => {
               timer.setSelectedProject(Number(projectId));
+              timer.setDescription("");
             }}
             data={timer.pinnedProjects?.map((project) => ({
               label: project.name,
