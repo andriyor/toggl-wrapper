@@ -21,6 +21,7 @@ import "@mantine/core/styles/InlineInput.css";
 import "@mantine/core/styles/Flex.css";
 import "@mantine/core/styles/FloatingIndicator.css";
 import "@mantine/core/styles/ActionIcon.css";
+import "@mantine/core/styles/ColorSwatch.css";
 
 import "@mantine/core/styles/Combobox.css";
 

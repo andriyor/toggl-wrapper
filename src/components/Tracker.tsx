@@ -1,4 +1,4 @@
-import { ActionIcon, Select, TextInput } from "@mantine/core";
+import { ActionIcon, ColorSwatch, Select, TextInput } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import {
   IconMaximize,
@@ -19,6 +19,9 @@ export const Tracker = () => {
     // Read synchronously so a reload opens straight into fullscreen.
     getInitialValueInEffect: false,
   });
+  const colorOf = (id: string) =>
+    timer.pinnedProjects?.find((project) => String(project.id) === id)?.color;
+  const selectedColor = colorOf(String(timer.selectedProject));
 
   return (
     <div>
@@ -44,6 +47,15 @@ export const Tracker = () => {
               label: project.name,
               value: String(project.id),
             }))}
+            leftSection={
+              selectedColor && <ColorSwatch color={selectedColor} size={12} />
+            }
+            renderOption={({ option }) => (
+              <div className="flex items-center gap-2">
+                <ColorSwatch color={colorOf(option.value) ?? ""} size={12} />
+                {option.label}
+              </div>
+            )}
           />
         </div>
         <div className="mr-4">{formatSeconds(timer.seconds)}</div>
