@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { Modal } from "@mantine/core";
+import { useIdle } from "@mantine/hooks";
 
+import { formatSeconds } from "../utils/format.ts";
 import type { Timer } from "../hooks/useTimer.ts";
 import { ProjectPicker } from "./ProjectPicker.tsx";
 import { RunningView } from "./RunningView.tsx";
@@ -40,10 +42,22 @@ export const FullscreenTimer = ({ opened, onClose, timer }: Props) => {
 
   // While idle, the background reflects the highlighted pinned project so the
   // selection is obvious even before starting.
-  const displayColor = isRunning ? currentProject?.color : selectedPinned?.color;
+  const displayColor = isRunning
+    ? currentProject?.color
+    : selectedPinned?.color;
   const displayName = isRunning
     ? (currentProject?.name ?? "No project")
     : (selectedPinned?.name ?? "Pick a project");
+
+  // After a while untouched, a running timer drops to a black, dim "always-on"
+  // look: OLED pixels that are black are off, so it saves battery and the
+  // coloured background can't burn in. Any tap/key/mouse move wakes it.
+  const idle = useIdle(30_000);
+  const dimmed = opened && isRunning && idle;
+  // Nudge the clock a few px each minute so the digits don't burn in either.
+  const minute = Math.floor(timer.seconds / 60);
+  const shift = `${((minute * 7) % 17) - 8}px, ${((minute * 11) % 17) - 8}px`;
+  const chromeColor = dimmed ? "#000" : displayColor;
 
   const onDark = isDarkColor(displayColor);
   const subTextColor = onDark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.6)";
@@ -56,19 +70,19 @@ export const FullscreenTimer = ({ opened, onClose, timer }: Props) => {
   // Tint the browser chrome (tab strip / mobile address bar) and the page
   // background, which shows behind the phone's bottom gesture bar.
   useEffect(() => {
-    if (!opened || !displayColor) return;
+    if (!opened || !chromeColor) return;
     const meta = document.querySelector<HTMLMetaElement>(
       'meta[name="theme-color"]',
     );
     const html = document.documentElement;
     const previous = { meta: meta?.content, bg: html.style.backgroundColor };
-    if (meta) meta.content = displayColor;
-    html.style.backgroundColor = displayColor;
+    if (meta) meta.content = chromeColor;
+    html.style.backgroundColor = chromeColor;
     return () => {
       if (meta && previous.meta) meta.content = previous.meta;
       html.style.backgroundColor = previous.bg;
     };
-  }, [opened, displayColor]);
+  }, [opened, chromeColor]);
 
   // Default the highlight to the first pinned project when opening idle with no
   // current selection, so Enter has something to start.
@@ -83,6 +97,8 @@ export const FullscreenTimer = ({ opened, onClose, timer }: Props) => {
     if (!opened) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      // While dimmed, a key press only wakes the screen (useIdle handles that).
+      if (dimmed) return;
       if (event.key === "Enter") {
         event.preventDefault();
         if (isRunning) stop();
@@ -103,6 +119,7 @@ export const FullscreenTimer = ({ opened, onClose, timer }: Props) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
     opened,
+    dimmed,
     isRunning,
     selectedIndex,
     selectedPinned,
@@ -137,6 +154,26 @@ export const FullscreenTimer = ({ opened, onClose, timer }: Props) => {
         },
       }}
     >
+      {dimmed && (
+        // Covers the whole modal (close/stop included) so the waking tap
+        // can't hit a button underneath.
+        <div
+          className="fixed inset-0 z-[1000] flex flex-col items-center justify-center gap-4 px-4 text-center"
+          style={{ backgroundColor: "#000", color: "rgba(255,255,255,0.35)" }}
+        >
+          <div style={{ transform: `translate(${shift})` }}>
+            <div className="text-xl sm:text-3xl break-words max-w-full">
+              {displayName}
+            </div>
+            <div
+              className="font-mono tabular-nums leading-none mt-4"
+              style={{ fontSize: "clamp(3rem, 18vw, 12rem)" }}
+            >
+              {formatSeconds(timer.seconds)}
+            </div>
+          </div>
+        </div>
+      )}
       <div
         className="flex flex-col items-center justify-center h-full gap-6 sm:gap-8 px-4 text-center"
         style={{ color: "#111" }}
