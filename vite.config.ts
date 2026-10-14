@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import basicSsl from "@vitejs/plugin-basic-ssl";
 
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -28,6 +29,8 @@ export default defineConfig(({ command, mode }) => {
         },
       },
     },
-    plugins: [react(), tailwindcss()],
+    // Self-signed HTTPS: browsers only expose APIs like the screen wake lock
+    // on secure origins, and plain http://<lan-ip> isn't one.
+    plugins: [react(), tailwindcss(), basicSsl()],
   };
 });

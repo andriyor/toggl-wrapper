@@ -19,12 +19,12 @@ docker build -t toggl-wrapper .
 docker run --rm -p 5173:5173 -e TOGGL_TOKEN=your_token toggl-wrapper
 ```
 
-Then open http://localhost:5173.
+Then open https://localhost:5173.
 
 ### Access from other devices
 
 The dev server listens on `0.0.0.0`, so devices on the same network can open
-`http://<your-ip>:5173` (macOS: `ipconfig getifaddr en0`). Allow incoming
+`https://<your-ip>:5173` (self-signed cert: accept the browser warning once) (macOS: `ipconfig getifaddr en0`). Allow incoming
 connections for `node`/Docker in the firewall if it doesn't load.
 
 > The token stays on the server (the proxy adds it), but anyone who can open the
