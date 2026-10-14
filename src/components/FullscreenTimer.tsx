@@ -84,6 +84,32 @@ export const FullscreenTimer = ({ opened, onClose, timer }: Props) => {
     };
   }, [opened, chromeColor]);
 
+  // Stop the phone from auto-locking while fullscreen. Locking the phone or
+  // switching apps/tabs releases the wake lock automatically and it isn't
+  // restored on return, so request it again whenever the page is shown.
+  useEffect(() => {
+    if (!opened || !("wakeLock" in navigator)) return;
+    let lock: WakeLockSentinel | undefined;
+    let active = true;
+    const request = () => {
+      if (document.visibilityState !== "visible") return;
+      navigator.wakeLock
+        .request("screen")
+        .then((sentinel) => {
+          if (active) lock = sentinel;
+          else sentinel.release();
+        })
+        .catch(() => {}); // e.g. Low Power Mode; the phone just locks as usual
+    };
+    request();
+    document.addEventListener("visibilitychange", request);
+    return () => {
+      active = false;
+      document.removeEventListener("visibilitychange", request);
+      lock?.release();
+    };
+  }, [opened]);
+
   // Default the highlight to the first pinned project when opening idle with no
   // current selection, so Enter has something to start.
   useEffect(() => {
