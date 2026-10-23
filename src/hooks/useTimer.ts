@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocalStorage } from "@mantine/hooks";
-
 import { fetchMe } from "../api/me.ts";
 import { fetchProjects } from "../api/projects.ts";
-import { fetchTags } from "../api/tags.ts";
+import {
+  fetchSelectedTags,
+  fetchTags,
+  saveSelectedTags,
+} from "../api/tags.ts";
 import {
   createTimeEntry,
   fetchCurrentTimeEntry,
@@ -16,11 +18,6 @@ export const useTimer = () => {
   const queryClient = useQueryClient();
   const [description, setDescription] = useState("");
   const [selectedProject, setSelectedProject] = useState<number>();
-  // Tag group name -> selected tag id.
-  const [tagState, setTagState] = useLocalStorage<Record<string, number>>({
-    key: "tagsState",
-    defaultValue: {},
-  });
   const { data: currentTimeEntry } = useQuery({
     queryKey: ["currentTimeEntry"],
     queryFn: fetchCurrentTimeEntry,
@@ -33,6 +30,23 @@ export const useTimer = () => {
     queryKey: ["tags"],
     queryFn: fetchTags,
   });
+
+  const { data: selectedTags } = useQuery({
+    queryKey: ["selectedTags"],
+    queryFn: fetchSelectedTags,
+  });
+
+  // Tag group name -> selected tag id. Tags are named "group:value".
+  const tagState: Record<string, number> = Object.fromEntries(
+    (selectedTags ?? []).map((tag) => [tag.name.split(":")[0], tag.id]),
+  );
+
+  const setTagState = (next: Record<string, number>) => {
+    const ids = Object.values(next);
+    const selected = (tags ?? []).filter((tag) => ids.includes(tag.id));
+    queryClient.setQueryData(["selectedTags"], selected);
+    saveSelectedTags(selected).catch(console.error);
+  };
 
   const isRunning = Boolean(currentTimeEntry);
 

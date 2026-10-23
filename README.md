@@ -35,7 +35,7 @@ connections for `node`/Docker in the firewall if it doesn't load.
 - start / stop timer
 - timer description
 - project selector (pinned projects)
-- selector for grouped tags (`group:tag`), state saved locally
+- selector for grouped tags (`group:tag`), selection saved on the server (`GET /api/selected-tags`)
 - show currently running timer, synced every minute
 - full-screen timer mode
   - background in the project colour

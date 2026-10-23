@@ -1,0 +1,16 @@
+meta {
+  name: tags
+  type: http
+  seq: 4
+}
+
+get {
+  url: https://api.track.toggl.com/api/v9/me/tags
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

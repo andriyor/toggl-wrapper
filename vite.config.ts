@@ -3,6 +3,8 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import basicSsl from "@vitejs/plugin-basic-ssl";
 
+import { selectedTagsApi } from "./server/selected-tags.ts";
+
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
   // Empty prefix loads non-VITE_ vars too; the token stays server-side and is
@@ -29,8 +31,13 @@ export default defineConfig(({ command, mode }) => {
         },
       },
     },
-    // Self-signed HTTPS: browsers only expose APIs like the screen wake lock
-    // on secure origins, and plain http://<lan-ip> isn't one.
-    plugins: [react(), tailwindcss(), basicSsl()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      // Self-signed HTTPS: browsers only expose APIs like the screen wake lock
+      // on secure origins, and plain http://<lan-ip> isn't one.
+      basicSsl(),
+      selectedTagsApi(),
+    ],
   };
 });

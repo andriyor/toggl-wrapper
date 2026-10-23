@@ -6,4 +6,7 @@ services:
     environment:
       # Passed through from your shell or the .env file in this directory.
       TOGGL_TOKEN: ${TOGGL_TOKEN:?set TOGGL_TOKEN in your env or .env file}
+    volumes:
+      # Selected tags (/api/selected-tags) survive container rebuilds.
+      - ./data:/app/data
     restart: unless-stopped
