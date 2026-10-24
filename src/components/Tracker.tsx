@@ -20,7 +20,7 @@ export const Tracker = () => {
     getInitialValueInEffect: false,
   });
   const colorOf = (id: string) =>
-    timer.pinnedProjects?.find((project) => String(project.id) === id)?.color;
+    timer.allProjects?.find((project) => String(project.id) === id)?.color;
   const selectedColor = colorOf(String(timer.selectedProject));
 
   return (
@@ -44,7 +44,7 @@ export const Tracker = () => {
               timer.setSelectedProject(Number(projectId));
               timer.setDescription("");
             }}
-            data={timer.pinnedProjects?.map((project) => ({
+            data={timer.allProjects?.map((project) => ({
               label: project.name,
               value: String(project.id),
             }))}

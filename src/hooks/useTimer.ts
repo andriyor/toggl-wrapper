@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchMe } from "../api/me.ts";
 import { fetchProjects } from "../api/projects.ts";
-import {
-  fetchSelectedTags,
-  fetchTags,
-  saveSelectedTags,
-} from "../api/tags.ts";
+import { fetchSelectedTags, fetchTags, saveSelectedTags } from "../api/tags.ts";
 import {
   createTimeEntry,
   fetchCurrentTimeEntry,
@@ -83,20 +78,19 @@ export const useTimer = () => {
         )
       : 0;
 
-  const { data: me } = useQuery({
-    queryKey: ["me"],
-    queryFn: fetchMe,
-  });
   const { data: projects } = useQuery({
     queryKey: ["projects"],
-    queryFn: () => fetchProjects(me!.default_workspace_id),
-    enabled: Boolean(me?.default_workspace_id),
+    queryFn: fetchProjects,
   });
   // Keep the selected project listed even when it isn't pinned (e.g. a timer
   // started elsewhere), otherwise the Select renders blank.
   const pinnedProjects = projects?.filter(
     (project) => project.pinned || project.id === selectedProject,
   );
+  // Pinned first, then the rest — stable sort keeps Toggl's order within each.
+  const allProjects =
+    projects &&
+    [...projects].sort((a, b) => Number(b.pinned) - Number(a.pinned));
   const currentProject = projects?.find(
     (project) => project.id === currentTimeEntry?.project_id,
   );
@@ -105,11 +99,13 @@ export const useTimer = () => {
     .map((tag) => tag.name);
 
   const start = () => {
-    if (!me || !selectedProject) return;
+    const project = projects?.find((p) => p.id === selectedProject);
+    if (!project) return;
     createTimeEntry({
       description: description,
-      projectId: selectedProject,
-      workspaceId: me.default_workspace_id,
+      projectId: project.id,
+      // /me/projects spans workspaces; the entry must live in the project's.
+      workspaceId: project.workspace_id,
       tagIds: Object.values(tagState),
     }).then((res) => {
       queryClient.setQueryData(["currentTimeEntry"], res);
@@ -138,6 +134,7 @@ export const useTimer = () => {
     currentProject,
     currentTagNames,
     pinnedProjects,
+    allProjects,
     isRunning,
     seconds,
     start,

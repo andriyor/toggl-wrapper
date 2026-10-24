@@ -1,5 +1,5 @@
 import { request } from "./base.ts";
 import type { Project } from "./types.ts";
 
-export const fetchProjects = (workspaceId: number) =>
-  request<Project[]>(`/workspaces/${workspaceId}/projects`);
+// All projects the user can access, across workspaces.
+export const fetchProjects = () => request<Project[]>("/me/projects");

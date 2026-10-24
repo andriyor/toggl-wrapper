@@ -1,13 +1,6 @@
 // Hand-written Toggl Track API v9 response shapes — only the fields this app
 // reads. See https://engineering.toggl.com/docs/track/ for the full models.
 
-export type Me = {
-  id: number;
-  email: string;
-  fullname: string;
-  default_workspace_id: number;
-};
-
 export type Project = {
   id: number;
   workspace_id: number;
