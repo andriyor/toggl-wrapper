@@ -12,8 +12,10 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+RUN pnpm build
 
-# Vite dev server. It reads TOGGL_TOKEN from the environment at startup,
-# and its built-in proxy forwards /toggl -> https://api.track.toggl.com.
+# `vite preview` serves the built bundle (the dev server idles at ~800 MB).
+# It reads TOGGL_TOKEN from the environment at startup, and the proxy from
+# server.proxy forwards /toggl -> https://api.track.toggl.com.
 EXPOSE 5173
-CMD ["pnpm", "dev", "--host", "0.0.0.0", "--port", "5173"]
+CMD ["pnpm", "preview", "--host", "0.0.0.0", "--port", "5173"]

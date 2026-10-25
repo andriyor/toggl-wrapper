@@ -2,9 +2,9 @@
 
 ## Docker
 
-The container runs the Vite dev server, which reads your Toggl API token from
-`TOGGL_TOKEN` at startup and proxies `/toggl` to the Toggl API (avoiding
-CORS). The app is served on port `5173`.
+The container builds the app and serves it with `vite preview`, which reads
+your Toggl API token from `TOGGL_TOKEN` at startup and proxies `/toggl` to the
+Toggl API (avoiding CORS). The app is served on port `5173`.
 
 With docker compose (reads `TOGGL_TOKEN` from your shell or a `.env` file):
 
@@ -23,7 +23,7 @@ Then open http://localhost:5173.
 
 ### Access from other devices
 
-The dev server listens on `0.0.0.0`, so devices on the same network can open
+The server listens on `0.0.0.0`, so devices on the same network can open
 `http://<your-ip>:5173` (macOS: `ipconfig getifaddr en0`). Allow incoming
 connections for `node`/Docker in the firewall if it doesn't load.
 
@@ -44,10 +44,11 @@ connections for `node`/Docker in the firewall if it doesn't load.
 
 ## Technical decisions
 
-- **Token stays server-side.** The Vite dev server proxies `/toggl` to the
+- **Token stays server-side.** The Vite server proxies `/toggl` to the
   Toggl API and adds the `Authorization` header from `TOGGL_TOKEN`, so the
-  token never reaches the browser and CORS is avoided. Downside: the app only
-  runs on the dev server (no production build).
+  token never reaches the browser and CORS is avoided. Docker runs
+  `vite preview` on the built bundle rather than the dev server (~800 MB
+  idle), so the proxy and the selected-tags plugin work in both.
 - **Toggl API v9, `/me/*` endpoints.** Projects come from `/me/projects` and
   tags from `/me/tags`, which return everything the user can access across
   workspaces (the per-workspace `/workspaces/{id}/projects` list is
@@ -77,5 +78,4 @@ connections for `node`/Docker in the firewall if it doesn't load.
 - [x] throw on failed API requests
 - [x] keep the API token out of the client bundle
 - [ ] show start / stop errors in the UI (currently only logged to the console)
-- [ ] production build: the app only runs on the Vite dev server, whose proxy
-      adds the token
+- [x] production build: Docker serves the build with `vite preview`

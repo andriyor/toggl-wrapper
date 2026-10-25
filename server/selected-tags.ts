@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import type { IncomingMessage } from "node:http";
-import type { Plugin } from "vite";
+import type { Connect, Plugin } from "vite";
 
 const FILE = "data/selected-tags.json";
 const MAX_BODY = 100_000;
@@ -31,32 +31,36 @@ const readBody = async (req: IncomingMessage) => {
 
 // GET /api/selected-tags returns the tags picked in the UI; the frontend PUTs
 // them on every change. Saved to a file so it survives restarts.
+const mount = (middlewares: Connect.Server) => {
+  let selected = load();
+
+  middlewares.use("/api/selected-tags", async (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    const send = () => res.end(JSON.stringify(selected));
+
+    if (req.method === "GET") return void send();
+    if (req.method !== "PUT") return void res.writeHead(405).end();
+
+    const body = await readBody(req);
+    if (body === null) return void res.writeHead(413).end();
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(body);
+    } catch {
+      return void res.writeHead(400).end();
+    }
+    if (!Array.isArray(parsed)) return void res.writeHead(400).end();
+
+    selected = parsed;
+    save(selected);
+    send();
+  });
+};
+
+// Mounted on both the dev server and `vite preview` (what Docker runs).
 export const selectedTagsApi = (): Plugin => ({
   name: "selected-tags-api",
   apply: "serve",
-  configureServer(server) {
-    let selected = load();
-
-    server.middlewares.use("/api/selected-tags", async (req, res) => {
-      res.setHeader("Content-Type", "application/json");
-      const send = () => res.end(JSON.stringify(selected));
-
-      if (req.method === "GET") return void send();
-      if (req.method !== "PUT") return void res.writeHead(405).end();
-
-      const body = await readBody(req);
-      if (body === null) return void res.writeHead(413).end();
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(body);
-      } catch {
-        return void res.writeHead(400).end();
-      }
-      if (!Array.isArray(parsed)) return void res.writeHead(400).end();
-
-      selected = parsed;
-      save(selected);
-      send();
-    });
-  },
+  configureServer: (server) => mount(server.middlewares),
+  configurePreviewServer: (server) => mount(server.middlewares),
 });
