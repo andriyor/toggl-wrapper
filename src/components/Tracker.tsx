@@ -40,14 +40,15 @@ export const Tracker = () => {
             searchable
             placeholder="Pick project"
             value={String(timer.selectedProject)}
-            // Enter on the closed dropdown starts the selected project; while
-            // it's open, Enter only picks an option (Mantine sets
-            // data-expanded on the input then).
+            // Enter on the closed dropdown starts the selected project, or
+            // switches to it if another one is running (Toggl stops the
+            // running entry when a new one starts). While it's open, Enter
+            // only picks an option (Mantine sets data-expanded on the input).
             onKeyDown={(event) => {
               if (
                 event.key === "Enter" &&
                 !event.currentTarget.dataset.expanded &&
-                !timer.isRunning
+                timer.selectedProject !== timer.currentTimeEntry?.project_id
               ) {
                 timer.start();
               }
