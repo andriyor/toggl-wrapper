@@ -1,5 +1,14 @@
 # toggl-wrapper
 
+A faster front end for Toggl Track, built around three ideas:
+
+- **Categorized tags.** Tags named `group:tag` are grouped by category, so the
+  right tag is quick to find and select instead of scrolling one flat list.
+- **Speed.** Projects and tags are preloaded and cached, so the UI opens
+  instantly and starting a timer takes a couple of clicks or keystrokes.
+- **Full-screen mode.** A distraction-free timer view, driven by keyboard or
+  touch, that works on a phone or a spare screen.
+
 ## Docker
 
 The container builds the app and serves it with `vite preview`, which reads
