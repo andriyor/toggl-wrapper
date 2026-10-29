@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchProjects } from "../api/projects.ts";
 import { fetchSelectedTags, fetchTags, saveSelectedTags } from "../api/tags.ts";
@@ -36,32 +36,43 @@ export const useTimer = () => {
     (selectedTags ?? []).map((tag) => [tag.name.split(":")[0], tag.id]),
   );
 
-  const setTagState = (next: Record<string, number>) => {
-    const ids = Object.values(next);
-    const selected = (tags ?? []).filter((tag) => ids.includes(tag.id));
-    queryClient.setQueryData(["selectedTags"], selected);
-    saveSelectedTags(selected).catch(console.error);
-  };
+  const setTagState = useCallback(
+    (next: Record<string, number>) => {
+      const ids = new Set(Object.values(next));
+      const selected = (tags ?? []).filter((tag) => ids.has(tag.id));
+      queryClient.setQueryData(["selectedTags"], selected);
+      saveSelectedTags(selected).catch(console.error);
+    },
+    [tags, queryClient],
+  );
 
   const isRunning = Boolean(currentTimeEntry);
 
+  // Plain values so the effects re-run only when the entry's data actually
+  // changes (including edits made elsewhere), not on every refetch.
+  const entryId = currentTimeEntry?.id;
+  const entryProjectId = currentTimeEntry?.project_id;
+  const entryDescription = currentTimeEntry?.description;
+  const entryTagIds = currentTimeEntry?.tag_ids;
+
   // Reflect a running entry (possibly started elsewhere) in the inputs.
   useEffect(() => {
-    if (!currentTimeEntry) return;
-    setSelectedProject(currentTimeEntry.project_id ?? undefined);
-    setDescription(currentTimeEntry.description ?? "");
-  }, [currentTimeEntry?.id]);
+    if (entryId === undefined) return;
+    setSelectedProject(entryProjectId ?? undefined);
+    setDescription(entryDescription ?? "");
+  }, [entryId, entryProjectId, entryDescription]);
 
   // Tags are "group:value"; map the entry's tag_ids back to group -> id.
   useEffect(() => {
-    if (!currentTimeEntry || !tags) return;
+    if (entryId === undefined || !tags) return;
+    const tagsById = new Map(tags.map((tag) => [tag.id, tag]));
     const next: Record<string, number> = {};
-    for (const id of currentTimeEntry.tag_ids ?? []) {
-      const tag = tags.find((t) => t.id === id);
+    for (const id of entryTagIds ?? []) {
+      const tag = tagsById.get(id);
       if (tag?.name.includes(":")) next[tag.name.split(":")[0]] = tag.id;
     }
     setTagState(next);
-  }, [currentTimeEntry?.id, tags]);
+  }, [entryId, entryTagIds, tags, setTagState]);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -94,8 +105,9 @@ export const useTimer = () => {
   const currentProject = projects?.find(
     (project) => project.id === currentTimeEntry?.project_id,
   );
+  const entryTagIdSet = new Set(entryTagIds);
   const currentTagNames = (tags ?? [])
-    .filter((tag) => currentTimeEntry?.tag_ids?.includes(tag.id))
+    .filter((tag) => entryTagIdSet.has(tag.id))
     .map((tag) => tag.name);
 
   const start = () => {
